@@ -1,0 +1,15 @@
+artifact_uri: file:///D:/HourlyModel/mlruns/0/f440ad99f7cf4b819f8a7174e40d7acd/artifacts
+end_time: 1701178169389
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: f440ad99f7cf4b819f8a7174e40d7acd
+run_name: receptive-whale-258
+run_uuid: f440ad99f7cf4b819f8a7174e40d7acd
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1701178166186
+status: 3
+tags: []
+user_id: Shubham Bhatt

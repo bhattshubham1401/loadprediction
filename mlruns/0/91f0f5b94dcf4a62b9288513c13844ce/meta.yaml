@@ -1,0 +1,15 @@
+artifact_uri: file:///D:/HourlyModel/mlruns/0/91f0f5b94dcf4a62b9288513c13844ce/artifacts
+end_time: 1701170702576
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 91f0f5b94dcf4a62b9288513c13844ce
+run_name: bald-goose-505
+run_uuid: 91f0f5b94dcf4a62b9288513c13844ce
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1701170699049
+status: 3
+tags: []
+user_id: Shubham Bhatt
