@@ -7,14 +7,14 @@ from statsmodels.tsa.seasonal import seasonal_decompose
 from src.mlProject.utils.common import adfuller_test
 from src.mlProject import logger
 from src.mlProject.entity.config_entity import DataTransformationConfig
-
+import datetime
 warnings.filterwarnings("ignore")
 import pandas as pd
 import seaborn as sns
 
 color_pal = sns.color_palette()
 plt.style.use('fivethirtyeight')
-from src.mlProject.utils.common import add_lags, create_features
+from src.mlProject.utils.common import add_lags, create_features, store_actual_data
 
 
 class DataTransformation:
@@ -24,6 +24,7 @@ class DataTransformation:
     def initiate_data_transformation(self):
         try:
             df1 = pd.read_parquet(self.config.data_dir)
+            ''' Storing data im mongo for actual vs predicted '''
             df1['Kwh'] = df1['Kwh'] / 1000
 
             # Label Encoding for 'sensor'
@@ -31,8 +32,6 @@ class DataTransformation:
             df1['sensor'] = le.fit_transform(df1['sensor'])
 
             sensor_ids = df1['sensor'].unique()
-            # for future ref
-            # sensor_ids = df1.groupby('sensor')
 
             for sensor_id in sensor_ids:
                 sensor_df = df1[df1['sensor'] == sensor_id]
@@ -88,7 +87,18 @@ class DataTransformation:
                 y_all.to_csv(test_data_filepath, mode='w', header=True, index=False)
                 dfresample.to_csv(data_filepath, mode='w', header=True, index=False)
 
+                # ''' Dumping Previous month Transformed data into mongo db for Actual vs Predited graph'''
+                # end_date = datetime.datetime.today().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+                # start_date = (end_date - datetime.timedelta(days=end_date.day)).replace(day=1, hour=0, minute=0,
+                #                                                                         second=0, microsecond=0)
+                #
+                # dfresample['Clock'] = pd.to_datetime(dfresample['Clock'])
+                # last_month_data = dfresample[(dfresample['Clock'] >= start_date) & (dfresample['Clock'] < end_date)]
+                # store_actual_data(last_month_data)
+
         except Exception as e:
             print(traceback.format_exc())
             logger.info(f"Error occur in Data Transformation Layer {e}")
+
+
 

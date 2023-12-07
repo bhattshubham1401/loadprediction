@@ -54,7 +54,6 @@ class ModelTrainer:
                                               objective= 'reg:squarederror')
                 best_xgb_model.fit(X_train, y_train)
                 models_dict[i] = best_xgb_model
-                # print(models_dict)
             # Save the dictionary of models as a single .joblib file
             joblib.dump(models_dict, os.path.join(self.config.root_dir, self.config.model_name))
 

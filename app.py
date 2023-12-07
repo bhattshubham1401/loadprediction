@@ -5,7 +5,7 @@ from flask import Flask, render_template, request
 import os
 import numpy as np
 import pandas as pd
-from mlProject.pipeline.prediction import PredictionPipeline
+from src.mlProject.pipeline.prediction import PredictionPipeline
 
 app = Flask(__name__)  # initializing a flask app
 
@@ -25,20 +25,13 @@ def training():
 def index():
     if request.method == 'POST':
         try:
-
             #  reading the inputs given by the user
-            Clock = datetime.strptime(request.form['Clock'], '%Y-%m-%d')
-            sensor = str(request.form['sensor'])
-            kWh = str(request.form['kWh'])
-            R_Voltage = float(request.form['R_Voltage'])
-            Y_Voltage = float(request.form['Y_Voltage'])
-            B_Voltage = float(request.form['B_Voltage'])
-            R_Current = float(request.form['R_Current'])
-            Y_Current = float(request.form['Y_Current'])
-            B_Current = float(request.form['B_Current'])
+            startDate = datetime.strptime(request.form['start_date'], '%Y-%m-%d')
+            endDate = datetime.strptime(request.form['end_date'], '%Y-%m-%d')
+            # sensor = str(request.form['sensor'])
 
-            data = [Clock, sensor, R_Voltage, Y_Voltage, B_Voltage, R_Current, Y_Current, B_Current]
-            data = np.array(data).reshape(1, 8)
+            data = [startDate, endDate]
+            data = np.array(data).reshape(1, 2)
 
             obj = PredictionPipeline()
             predict = obj.predict(data)

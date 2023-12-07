@@ -366,3 +366,60 @@ def adfuller_test(self, data, sensor_id):
     for key, value in dftest[4].items():
         dfoutput['Critical Values(%s)' % key] = value
     print(f"The sensor id {sensor_id}-{dfoutput}")
+
+
+@ensure_annotations
+def store_actual_data(data):
+    # print(data[['Clock', 'Kwh', 'sensor']])
+    # return
+
+    try:
+        logger.info("calling DB configuration")
+        db = os.getenv("db")
+        host = os.getenv("host")
+        port = os.getenv("port")
+        collection_name = os.getenv("collection3")
+
+        MONGO_URL = f"mongodb://{host}:{port}"
+
+        labeled_to_original_mapping = {
+            0: "5f718c439c7a78.65267835",
+            1: "62a9920f75c931.62399458",
+        }
+
+        client = MongoClient(MONGO_URL)
+        db1 = client[db]
+        collection = db1[collection_name]
+
+        # Group data by date
+        grouped_data = data.groupby(data['Clock'].dt.date)
+
+        for date, group in grouped_data:
+            date_str = date.strftime('%Y-%m-%d')
+            document_id = f"{labeled_to_original_mapping.get(group['sensor'].iloc[0], group['sensor'].iloc[0])}_{date_str}"
+
+            document = {
+                "_id": document_id,
+                "sensor_id": labeled_to_original_mapping.get(group['sensor'].iloc[0], group['sensor'].iloc[0]),
+                "creation_time": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                "millisecond": int(datetime.now().timestamp() * 1000),
+                "data": {}
+            }
+
+            # Populate the 'data' dictionary with hourly predictions
+            for _, row in group.iterrows():
+                actuals = round(float(row['Kwh']), 4)
+                hour = row['Clock'].hour
+                data_key = str(hour)
+                data_value = {
+                    "act_kwh": actuals
+                }
+                document["data"][data_key] = data_value
+
+            # Insert data into MongoDB
+            collection.insert_one(document)
+
+        client.close()
+
+    except Exception as e:
+        print(e)

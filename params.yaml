@@ -1,7 +1,7 @@
 XG_Boost:
     n_estimators: 200
     max_depth: 10
-    learning_rate : 0.2
+    learning_rate : 0.3
     subsample: 1.0
     colsample_bytree: 0.9
 
