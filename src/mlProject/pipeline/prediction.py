@@ -29,7 +29,7 @@ class PredictionPipeline:
         store_actual_data(last_month_data)
         return
 
-    def predict(self, data):
+    def predict(self):
         try:
             data_files = [file for file in os.listdir(self.path) if file.startswith('sensor')]
             data_list = []
