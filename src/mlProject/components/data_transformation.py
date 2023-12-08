@@ -74,6 +74,7 @@ class DataTransformation:
                 TARGET = ['Kwh']
 
                 X_all = dfresample[FEATURES]
+
                 y_all = dfresample[TARGET]
                 X_all.reset_index(inplace=True)
                 y_all.reset_index(inplace=True)
@@ -88,13 +89,13 @@ class DataTransformation:
                 dfresample.to_csv(data_filepath, mode='w', header=True, index=False)
 
                 # ''' Dumping Previous month Transformed data into mongo db for Actual vs Predited graph'''
-                # end_date = datetime.datetime.today().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-                # start_date = (end_date - datetime.timedelta(days=end_date.day)).replace(day=1, hour=0, minute=0,
-                #                                                                         second=0, microsecond=0)
-                #
-                # dfresample['Clock'] = pd.to_datetime(dfresample['Clock'])
-                # last_month_data = dfresample[(dfresample['Clock'] >= start_date) & (dfresample['Clock'] < end_date)]
-                # store_actual_data(last_month_data)
+                end_date = datetime.datetime.today().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+                start_date = (end_date - datetime.timedelta(days=end_date.day)).replace(day=1, hour=0, minute=0,
+                                                                                         second=0, microsecond=0)
+
+                dfresample['Clock'] = pd.to_datetime(dfresample['Clock'])
+                last_month_data = dfresample[(dfresample['Clock'] >= start_date) & (dfresample['Clock'] < end_date)]
+                store_actual_data(last_month_data)
 
         except Exception as e:
             print(traceback.format_exc())

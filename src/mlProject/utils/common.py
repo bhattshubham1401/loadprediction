@@ -17,7 +17,8 @@ from box.exceptions import BoxValueError
 from dotenv import load_dotenv
 from ensure import ensure_annotations
 from pymongo import MongoClient
-from statsmodels.tsa.stattools import adfuller
+
+# from statsmodels.tsa.stattools import adfuller
 
 from src.mlProject import logger
 
@@ -361,11 +362,11 @@ def rolling_statistics(self, data):
 @ensure_annotations
 def adfuller_test(self, data, sensor_id):
     print("Result od adifuller test:")
-    dftest = adfuller(data, autolag='AIC')
-    dfoutput = pd.Series(dftest[0:4], index=['Test Stat', 'p-value', 'lags used', 'np of observation used'])
-    for key, value in dftest[4].items():
-        dfoutput['Critical Values(%s)' % key] = value
-    print(f"The sensor id {sensor_id}-{dfoutput}")
+    # dftest = adfuller(data, autolag='AIC')
+    # dfoutput = pd.Series(dftest[0:4], index=['Test Stat', 'p-value', 'lags used', 'np of observation used'])
+    # for key, value in dftest[4].items():
+    #     dfoutput['Critical Values(%s)' % key] = value
+    # print(f"The sensor id {sensor_id}-{dfoutput}")
 
 
 @ensure_annotations

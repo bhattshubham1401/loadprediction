@@ -25,18 +25,19 @@ def training():
 def index():
     if request.method == 'POST':
         try:
-            #  reading the inputs given by the user
-            startDate = datetime.strptime(request.form['start_date'], '%Y-%m-%d')
-            endDate = datetime.strptime(request.form['end_date'], '%Y-%m-%d')
-            # sensor = str(request.form['sensor'])
-
-            data = [startDate, endDate]
-            data = np.array(data).reshape(1, 2)
+            # #  reading the inputs given by the user
+            # startDate = datetime.strptime(request.form['start_date'], '%Y-%m-%d')
+            # endDate = datetime.strptime(request.form['end_date'], '%Y-%m-%d')
+            # # sensor = str(request.form['sensor'])
+            #
+            # data = [startDate, endDate]
+            # data = np.array(data).reshape(1, 2)
 
             obj = PredictionPipeline()
-            predict = obj.predict(data)
+            predict = obj.predict()
+            print(f"The Predicted data is sucessfully stored in the Database {predict}")
 
-            return render_template('results.html', prediction=str(predict))
+            # return render_template('results.html', prediction=str(predict))
 
         except Exception as e:
             print(traceback.format_exc())
@@ -48,5 +49,4 @@ def index():
 
 
 if __name__ == "__main__":
-    # app.run(host="0.0.0.0", port = 8080, debug=True)
     app.run(host="0.0.0.0", port=8080)

@@ -1,0 +1,15 @@
+artifact_uri: file:///D:/HourlyModel/mlruns/0/2179910bb8f448799011e686df1ad3eb/artifacts
+end_time: 1702012422711
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 2179910bb8f448799011e686df1ad3eb
+run_name: beautiful-crab-453
+run_uuid: 2179910bb8f448799011e686df1ad3eb
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1702012403412
+status: 3
+tags: []
+user_id: Shubham Bhatt

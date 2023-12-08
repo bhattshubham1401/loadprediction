@@ -1,0 +1,15 @@
+artifact_uri: file:///D:/HourlyModel/mlruns/0/d49825371e7445b8915b6e205f21bea0/artifacts
+end_time: 1701970699842
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: d49825371e7445b8915b6e205f21bea0
+run_name: whimsical-grouse-330
+run_uuid: d49825371e7445b8915b6e205f21bea0
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1701970693084
+status: 3
+tags: []
+user_id: Shubham Bhatt

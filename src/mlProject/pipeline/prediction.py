@@ -1,7 +1,6 @@
 import os
 import traceback
-from datetime import datetime, timedelta, date
-
+import datetime
 import joblib
 import pandas as pd
 
@@ -18,27 +17,30 @@ class PredictionPipeline:
         # Load the model as a dictionary
         return joblib.load(self.model)
 
+    def actualData(self, data_sensor):
+
+        ''' Dumping Previous month Transformed data into mongo db for Actual vs Predited graph'''
+        end_date = datetime.datetime.today().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        start_date = (end_date - datetime.timedelta(days=end_date.day)).replace(day=1, hour=0, minute=0,
+                                                                                second=0, microsecond=0)
+
+        data_sensor['Clock'] = pd.to_datetime(data_sensor['Clock'])
+        last_month_data = data_sensor[(data_sensor['Clock'] >= start_date) & (data_sensor['Clock'] < end_date)]
+        store_actual_data(last_month_data)
+        return
+
     def predict(self, data):
         try:
-            directory_path = 'artifacts/data_ingestion/'
-            data_files = [file for file in os.listdir(directory_path) if file.startswith('sensor')]
+            data_files = [file for file in os.listdir(self.path) if file.startswith('sensor')]
             data_list = []
+
             for data_file in data_files:
                 data_sensor = pd.read_csv(os.path.join(self.path, data_file))
-                ''' Dumping Previous month Transformed data into mongo db for Actual vs Predited graph'''
-                end_date = datetime.datetime.today().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-                start_date = (end_date - datetime.timedelta(days=end_date.day)).replace(day=1, hour=0, minute=0,
-                                                                                        second=0, microsecond=0)
-
-                data_sensor['Clock'] = pd.to_datetime(data_sensor['Clock'])
-                last_month_data = data_sensor[(data_sensor['Clock'] >= start_date) & (data_sensor['Clock'] < end_date)]
-                store_actual_data(last_month_data)
-
                 data_list.append(data_sensor)
+                # self.actualData(data_sensor)
 
             # Concatenate data for all sensors
             train_data = pd.concat(data_list, ignore_index=True)
-            # print(train_data)
 
             # Load the model as a dictionary
             loaded_model_dict = self.load_model_as_dict()
@@ -66,10 +68,10 @@ class PredictionPipeline:
                 # print(df1)
 
                 # index = df1.index.max()
-                endDate = date.today() + timedelta(days=7)
+                endDate = datetime.date.today() + datetime.timedelta(days=7)
                 startDate = datetime.today().strftime('%Y-%m-%d')
 
-                future = pd.date_range('2023-11-01', '2023-12-01', freq='1H')
+                future = pd.date_range(startDate, endDate, freq='1H')
                 future_df = pd.DataFrame(index=future)
                 future_df['isFuture'] = True
                 df1['isFuture'] = False

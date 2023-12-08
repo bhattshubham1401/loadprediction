@@ -1,6 +1,6 @@
 import os
 import traceback
-from datetime import datetime, timedelta, date
+import datetime
 from urllib.parse import urlparse
 
 import joblib
@@ -16,8 +16,7 @@ import pandas as pd
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 
 from src.mlProject.entity.config_entity import ModelEvaluationConfig
-from src.mlProject.utils.common import create_features, add_lags
-from src.mlProject.utils.common import store_predictions_in_mongodb
+from src.mlProject.utils.common import create_features, add_lags, store_actual_data, store_predictions_in_mongodb
 from src.mlProject import logger
 
 
@@ -35,12 +34,24 @@ class ModelEvaluation:
         # Load the model as a dictionary
         return joblib.load(self.config.model_path)
 
+    def actualData(self, data_sensor):
+        ''' Dumping Previous month Transformed data into mongo db for Actual vs Predited graph'''
+        end_date = datetime.datetime.today().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        start_date = (end_date - datetime.timedelta(days=end_date.day)).replace(day=1, hour=0, minute=0,
+                                                                                second=0, microsecond=0)
+
+        data_sensor['Clock'] = pd.to_datetime(data_sensor['Clock'])
+        last_month_data = data_sensor[(data_sensor['Clock'] >= start_date) & (data_sensor['Clock'] < end_date)]
+        store_actual_data(last_month_data)
+        return
+
     def log_into_mlflow(self):
         try:
             data_files = [file for file in os.listdir(self.config.test_data_path) if file.startswith('sensor')]
             data_list = []
             for data_file in data_files:
                 data_sensor = pd.read_csv(os.path.join(self.config.test_data_path, data_file))
+                # self.actualData(data_sensor)
                 data_list.append(data_sensor)
 
             # Concatenate data for all sensors
@@ -76,8 +87,8 @@ class ModelEvaluation:
                 # print(df1)
 
                 # index = df1.index.max()
-                endDate = date.today() + timedelta(days=7)
-                startDate = datetime.today().strftime('%Y-%m-%d')
+                # endDate = date.today() + timedelta(days=7)
+                # startDate = datetime.today().strftime('%Y-%m-%d')
 
                 future = pd.date_range('2023-11-01', '2023-12-01', freq='1H')
                 future_df = pd.DataFrame(index=future)
@@ -96,7 +107,7 @@ class ModelEvaluation:
                 with mlflow.start_run():
                     future_w_features['pred'] = model.predict(future_w_features[FEATURES])
                     # print(sensor_id, future_w_features.index, future_w_features['pred'])
-                    # store_predictions_in_mongodb(sensor_id, future_w_features.index, future_w_features['pred'])
+                    store_predictions_in_mongodb(sensor_id, future_w_features.index, future_w_features['pred'])
                     # store_actual_val(sensor_id, future_w_features.index, future_w_features['pred'])
 
                     # Model registry does not work with file store

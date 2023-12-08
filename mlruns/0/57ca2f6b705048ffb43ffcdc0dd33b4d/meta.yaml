@@ -1,0 +1,15 @@
+artifact_uri: file:///D:/HourlyModel/mlruns/0/57ca2f6b705048ffb43ffcdc0dd33b4d/artifacts
+end_time: 1701970663431
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 57ca2f6b705048ffb43ffcdc0dd33b4d
+run_name: peaceful-croc-637
+run_uuid: 57ca2f6b705048ffb43ffcdc0dd33b4d
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1701970660744
+status: 3
+tags: []
+user_id: Shubham Bhatt

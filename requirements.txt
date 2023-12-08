@@ -15,7 +15,6 @@ Flask-Cors
 pymongo~=4.5.0
 python-dotenv~=1.0.0
 setuptools~=68.2.2
-
 pyarrow~=11.0.0
 plotly~=5.18.0
 statsmodels~=0.14.0
