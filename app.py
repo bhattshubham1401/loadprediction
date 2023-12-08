@@ -33,8 +33,8 @@ def index():
             # data = np.array(data).reshape(1, 2)
 
             obj = PredictionPipeline()
-            predict = obj.predict()
-            print(f"The Predicted data is sucessfully stored in the Database {predict}")
+            obj.predict()
+            # print(f"The Predicted data is sucessfully stored in the Database {predict}")
 
         except Exception as e:
             print(traceback.format_exc())
