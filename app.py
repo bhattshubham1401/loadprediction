@@ -1,13 +1,12 @@
 import traceback
-from datetime import datetime
-
 from flask import Flask, render_template, request
 import os
-import numpy as np
-import pandas as pd
 from src.mlProject.pipeline.prediction import PredictionPipeline
 
-app = Flask(__name__)  # initializing a flask app
+from flask_cors import CORS
+
+app = Flask(__name__)
+CORS(app)
 
 
 @app.route('/', methods=['GET'])  # route to display the home page
@@ -37,8 +36,6 @@ def index():
             predict = obj.predict()
             print(f"The Predicted data is sucessfully stored in the Database {predict}")
 
-            # return render_template('results.html', prediction=str(predict))
-
         except Exception as e:
             print(traceback.format_exc())
             print('The Exception message is: ', e)
@@ -49,4 +46,4 @@ def index():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8080)
+    app.run(debug=True)
