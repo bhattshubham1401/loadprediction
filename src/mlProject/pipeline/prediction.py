@@ -68,10 +68,10 @@ class PredictionPipeline:
                 # print(df1)
 
                 # index = df1.index.max()
-                endDate = datetime.date.today() + datetime.timedelta(days=7)
-                startDate = datetime.today().strftime('%Y-%m-%d')
+                # endDate = datetime.date.today() + datetime.timedelta(days=7)
+                # startDate = datetime.today().strftime('%Y-%m-%d')
 
-                future = pd.date_range(startDate, endDate, freq='1H')
+                future = pd.date_range(start='2023-12-01',end='2023-12-31', freq='1H')
                 future_df = pd.DataFrame(index=future)
                 future_df['isFuture'] = True
                 df1['isFuture'] = False
