@@ -17,18 +17,6 @@ class PredictionPipeline:
         # Load the model as a dictionary
         return joblib.load(self.model)
 
-    def actualData(self, data_sensor):
-
-        ''' Dumping Previous month Transformed data into mongo db for Actual vs Predited graph'''
-        end_date = datetime.datetime.today().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-        start_date = (end_date - datetime.timedelta(days=end_date.day)).replace(day=1, hour=0, minute=0,
-                                                                                second=0, microsecond=0)
-
-        data_sensor['Clock'] = pd.to_datetime(data_sensor['Clock'])
-        last_month_data = data_sensor[(data_sensor['Clock'] >= start_date) & (data_sensor['Clock'] < end_date)]
-        store_actual_data(last_month_data)
-        return
-
     def predict(self):
         try:
             data_files = [file for file in os.listdir(self.path) if file.startswith('sensor')]
@@ -87,7 +75,8 @@ class PredictionPipeline:
 
                 future_w_features['pred'] = model.predict(future_w_features[FEATURES])
                 store_predictions_in_mongodb(sensor_id, future_w_features.index, future_w_features['pred'])
-                logger.info("Data is Sucessfully stored in mongoDB")
+
+                return
 
         except Exception as e:
             logger.error(f"Error in Model Evaluation: {e}")
