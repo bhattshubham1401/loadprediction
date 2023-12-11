@@ -76,7 +76,7 @@ class PredictionPipeline:
                 future_w_features['pred'] = model.predict(future_w_features[FEATURES])
                 store_predictions_in_mongodb(sensor_id, future_w_features.index, future_w_features['pred'])
 
-                return
+            return
 
         except Exception as e:
             logger.error(f"Error in Model Evaluation: {e}")
