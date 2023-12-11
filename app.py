@@ -34,7 +34,7 @@ def index():
 
             obj = PredictionPipeline()
             obj.predict()
-            print(f"The Predicted data is sucessfully stored in the Database")
+            # print(f"The Predicted data is sucessfully stored in the Database")
 
         except Exception as e:
             print(traceback.format_exc())
