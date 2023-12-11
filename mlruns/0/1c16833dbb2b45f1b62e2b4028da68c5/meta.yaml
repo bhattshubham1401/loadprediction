@@ -1,0 +1,15 @@
+artifact_uri: file:///D:/HourlyModel/mlruns/0/1c16833dbb2b45f1b62e2b4028da68c5/artifacts
+end_time: 1702297104227
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 1c16833dbb2b45f1b62e2b4028da68c5
+run_name: aged-hawk-367
+run_uuid: 1c16833dbb2b45f1b62e2b4028da68c5
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1702297097039
+status: 3
+tags: []
+user_id: Shubham Bhatt

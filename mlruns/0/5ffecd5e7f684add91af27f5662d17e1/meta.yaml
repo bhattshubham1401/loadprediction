@@ -1,0 +1,15 @@
+artifact_uri: file:///D:/HourlyModel/mlruns/0/5ffecd5e7f684add91af27f5662d17e1/artifacts
+end_time: 1702297223162
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 5ffecd5e7f684add91af27f5662d17e1
+run_name: nosy-toad-361
+run_uuid: 5ffecd5e7f684add91af27f5662d17e1
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1702297215205
+status: 3
+tags: []
+user_id: Shubham Bhatt

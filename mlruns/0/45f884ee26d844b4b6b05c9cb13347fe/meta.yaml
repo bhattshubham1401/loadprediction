@@ -1,0 +1,15 @@
+artifact_uri: file:///D:/HourlyModel/mlruns/0/45f884ee26d844b4b6b05c9cb13347fe/artifacts
+end_time: 1702297182552
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 45f884ee26d844b4b6b05c9cb13347fe
+run_name: bald-sow-808
+run_uuid: 45f884ee26d844b4b6b05c9cb13347fe
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1702297174948
+status: 3
+tags: []
+user_id: Shubham Bhatt

@@ -1,0 +1,15 @@
+artifact_uri: file:///D:/HourlyModel/mlruns/0/d6df70b82af4425a9442b14c24b1cdb1/artifacts
+end_time: 1702297240959
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: d6df70b82af4425a9442b14c24b1cdb1
+run_name: resilient-roo-919
+run_uuid: d6df70b82af4425a9442b14c24b1cdb1
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1702297232036
+status: 3
+tags: []
+user_id: Shubham Bhatt

@@ -1,0 +1,15 @@
+artifact_uri: file:///D:/HourlyModel/mlruns/0/19e005ed70d241e49e8183bda3e738e2/artifacts
+end_time: 1702297196123
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 19e005ed70d241e49e8183bda3e738e2
+run_name: casual-wolf-168
+run_uuid: 19e005ed70d241e49e8183bda3e738e2
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1702297182636
+status: 3
+tags: []
+user_id: Shubham Bhatt

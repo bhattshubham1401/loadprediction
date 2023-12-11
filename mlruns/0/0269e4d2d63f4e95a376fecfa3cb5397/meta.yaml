@@ -1,0 +1,15 @@
+artifact_uri: file:///D:/HourlyModel/mlruns/0/0269e4d2d63f4e95a376fecfa3cb5397/artifacts
+end_time: 1702297125784
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 0269e4d2d63f4e95a376fecfa3cb5397
+run_name: fearless-toad-541
+run_uuid: 0269e4d2d63f4e95a376fecfa3cb5397
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1702297118198
+status: 3
+tags: []
+user_id: Shubham Bhatt

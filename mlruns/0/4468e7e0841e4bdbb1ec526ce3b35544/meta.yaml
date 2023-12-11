@@ -1,0 +1,15 @@
+artifact_uri: file:///D:/HourlyModel/mlruns/0/4468e7e0841e4bdbb1ec526ce3b35544/artifacts
+end_time: 1702297118098
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 4468e7e0841e4bdbb1ec526ce3b35544
+run_name: rogue-skink-648
+run_uuid: 4468e7e0841e4bdbb1ec526ce3b35544
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1702297111815
+status: 3
+tags: []
+user_id: Shubham Bhatt

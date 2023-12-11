@@ -11,12 +11,14 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import plotly.express as px
+import requests
 import yaml
 from box import ConfigBox
 from box.exceptions import BoxValueError
 from dotenv import load_dotenv
 from ensure import ensure_annotations
 from pymongo import MongoClient
+# from src.mlProject.components.data_transformation import sensorDecode
 
 # from statsmodels.tsa.stattools import adfuller
 
@@ -143,46 +145,118 @@ def convert_datetime(input_datetime):
     return formatted_datetime
 
 
+# @ensure_annotations
+# def get_mongoData():
+#     ''' calling DB configuration '''
+#
+#     logger.info("calling DB configuration")
+#     db = os.getenv("db")
+#     host = os.getenv("host")
+#     port = os.getenv("port")
+#     collection = os.getenv("collection")
+#
+#     MONGO_URL = f"mongodb://{host}:{port}"
+#
+#     ''' Read data from DB'''
+#
+#     '''Writing logs'''
+#     logger.info("Reading data from Mongo DB")
+#
+#     '''Exception Handling'''
+#
+#     try:
+#         client = MongoClient(MONGO_URL)
+#         db1 = client[db]
+#         collection = db1[collection]
+#
+#         data = collection.find({})
+#
+#         columns = ['sensor', 'Clock', 'R_Voltage', 'Y_Voltage', 'B_Voltage', 'R_Current', 'Y_Current',
+#                    'B_Current', 'A', 'BlockEnergy-WhExp', 'B', 'C', 'D', 'BlockEnergy-VAhExp',
+#                    'Kwh', 'BlockEnergy-VArhQ1', 'BlockEnergy-VArhQ4', 'BlockEnergy-VAhImp']
+#
+#         datalist = [(entry['sensor_id'], entry['raw_data']) for entry in data]
+#         df = pd.DataFrame([row[0].split(',') + row[1].split(',') for row in datalist], columns=columns)
+#
+#         '''Dropping Columns'''
+#         df = df.drop(
+#             ['BlockEnergy-WhExp', 'A', 'B', 'C', 'D', 'BlockEnergy-VAhExp', 'BlockEnergy-VAhExp', 'BlockEnergy-VArhQ1',
+#              'BlockEnergy-VArhQ4', 'BlockEnergy-VAhImp'], axis=1)
+#         pd.set_option('display.max_columns', None)
+#
+#         # print("===============DataType Conversion==================")
+#         df['Clock'] = pd.to_datetime(df['Clock'])
+#         df['Kwh'] = df['Kwh'].astype(float)
+#         df['R_Voltage'] = df['R_Voltage'].astype(float)
+#         df['Y_Voltage'] = df['Y_Voltage'].astype(float)
+#         df['B_Voltage'] = df['B_Voltage'].astype(float)
+#         df['R_Current'] = df['R_Current'].astype(float)
+#         df['Y_Current'] = df['Y_Current'].astype(float)
+#         df['B_Current'] = df['B_Current'].astype(float)
+#         return df
+#
+#     except Exception as e:
+#         logger.info(f"Error occurs =========== {e}")
+
+''' Fetching Data from mongo DB through API'''
+
+
 @ensure_annotations
-def get_mongoData():
-    ''' calling DB configuration '''
+def get_data_from_api_query():
+    ''' '''
 
-    logger.info("calling DB configuration")
-    db = os.getenv("db")
-    host = os.getenv("host")
-    port = os.getenv("port")
-    collection = os.getenv("collection")
-
-    MONGO_URL = f"mongodb://{host}:{port}"
-
-    ''' Read data from DB'''
-
-    '''Writing logs'''
-    logger.info("Reading data from Mongo DB")
-
-    '''Exception Handling'''
-
+    logger.info("fetching data")
     try:
-        client = MongoClient(MONGO_URL)
-        db1 = client[db]
-        collection = db1[collection]
+        lst = [
+            '5f718b613291c7.03696209',
+            '5f718c439c7a78.65267835',
+            '614366bce31a86.78825897',
+            '6148740eea9db0.29702291',
+            '625fb44c5fb514.98107900',
+            '625fb9e020ff31.33961816',
+            '6260fd4351f892.69790282',
+            '627cd4815f2381.31981050',
+            '629094ee5fdff4.43505210',
+            '62aad7f5c65185.80723547',
+            '62b15dfee341d1.73837476',
+            '62b595eabd9df4.71374208',
+            '6349368c306542.16235883',
+            '634e7c43038801.39310596',
+            '6399a18b1488b8.07706749',
+            '63a4195534d625.00718490',
+            '63a4272631f153.67811394',
+            '63aa9161b9e7e1.16208626',
+            '63ca403ccd66f3.47133508',
+            '62a9920f75c931.62399458']
+        l1 = []
+        toDate = datetime(2023, 11, 18, 23, 59, 59)
 
-        data = collection.find({})
+        for sensor in lst:
+            url = "https://multipoint.myxenius.com/Sensor_newHelper/getDataApi"
+
+            params = {
+                'sql': "select raw_data, sensor_id from dlms_load_profile where sensor_id='{}' and read_time<='{}' order by read_time".format(
+                    sensor, toDate),
+                'type': 'query'
+            }
+            response = requests.get(url, params=params)
+            response.raise_for_status()
+            data = response.json()
+            l1.append(data['resource'])
 
         columns = ['sensor', 'Clock', 'R_Voltage', 'Y_Voltage', 'B_Voltage', 'R_Current', 'Y_Current',
                    'B_Current', 'A', 'BlockEnergy-WhExp', 'B', 'C', 'D', 'BlockEnergy-VAhExp',
                    'Kwh', 'BlockEnergy-VArhQ1', 'BlockEnergy-VArhQ4', 'BlockEnergy-VAhImp']
 
-        datalist = [(entry['sensor_id'], entry['raw_data']) for entry in data]
+        datalist = [(entry['sensor_id'], entry['raw_data']) for i in range(len(l1)) for entry in l1[i]]
+
         df = pd.DataFrame([row[0].split(',') + row[1].split(',') for row in datalist], columns=columns)
 
-        '''Dropping Columns'''
-        df = df.drop(
-            ['BlockEnergy-WhExp', 'A', 'B', 'C', 'D', 'BlockEnergy-VAhExp', 'BlockEnergy-VAhExp', 'BlockEnergy-VArhQ1',
-             'BlockEnergy-VArhQ4', 'BlockEnergy-VAhImp'], axis=1)
+        df = df.drop([
+            'BlockEnergy-WhExp', 'A', 'B', 'C', 'D', 'BlockEnergy-VAhExp', 'BlockEnergy-VAhExp', 'BlockEnergy-VArhQ1',
+            'BlockEnergy-VArhQ4', 'BlockEnergy-VAhImp'], axis=1)
         pd.set_option('display.max_columns', None)
 
-        # print("===============DataType Conversion==================")
         df['Clock'] = pd.to_datetime(df['Clock'])
         df['Kwh'] = df['Kwh'].astype(float)
         df['R_Voltage'] = df['R_Voltage'].astype(float)
@@ -191,6 +265,7 @@ def get_mongoData():
         df['R_Current'] = df['R_Current'].astype(float)
         df['Y_Current'] = df['Y_Current'].astype(float)
         df['B_Current'] = df['B_Current'].astype(float)
+        # print(df.tail())
         return df
 
     except Exception as e:
@@ -256,33 +331,38 @@ def sliderPlot(df1):
 @ensure_annotations
 def store_predictions_in_mongodb(sensor_id, dates, predictions):
     try:
-        logger.info("calling DB configuration")
+        logger.info("Calling DB configuration")
+
+        # Load the labeled_to_original_mapping from a JSON file
+        with open("encoded_to_sensor_mapping.json", "r") as file:
+            labeled_to_original_mapping = json.load(file)
+
+        # Example mapping:
+        # labeled_to_original_mapping = {
+        #     "0": "5f718c439c7a78.65267835",
+        #     "1": "62a9920f75c931.62399458",
+        # }
+
         db = os.getenv("db")
         host = os.getenv("host")
         port = os.getenv("port")
         collection_name = os.getenv("collection2")
 
-        MONGO_URL = f"mongodb://{host}:{port}"
-
-        labeled_to_original_mapping = {
-            0: "5f718c439c7a78.65267835",
-            1: "62a9920f75c931.62399458",
-        }
-
-        client = MongoClient(MONGO_URL)
+        mongo_url = f"mongodb://{host}:{port}"
+        client = MongoClient(mongo_url)
         db1 = client[db]
         collection = db1[collection_name]
 
-        unique_dates = set(dates.date)
-        unique_dates = sorted(unique_dates)[:-1]
+        unique_dates = sorted(set(dates.date))[:-1]
 
         for date in unique_dates:
             date_str = date.strftime('%Y-%m-%d')
-            document_id = f"{labeled_to_original_mapping.get(sensor_id, sensor_id)}_{date_str}"
+            original_sensor_id = labeled_to_original_mapping.get(str(sensor_id), str(sensor_id))
+            document_id = f"{original_sensor_id}_{date_str}"
 
             data = {
                 "_id": document_id,
-                "sensor_id": labeled_to_original_mapping.get(sensor_id, sensor_id),
+                "sensor_id": original_sensor_id,
                 "creation_time": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
                 "millisecond": int(datetime.now().timestamp() * 1000),
                 "data": {}
@@ -302,17 +382,17 @@ def store_predictions_in_mongodb(sensor_id, dates, predictions):
                     "act_load": 0.0
                 }
 
-            data_dict = {key: float(value) if isinstance(value, (float, np.integer, float, np.floating)) else value
+            data_dict = {key: float(value) if isinstance(value, (float, np.integer, np.floating)) else value
                          for key, value in data.items()}
 
             # Insert data into MongoDB
             collection.insert_one(data_dict)
 
         client.close()
+        logger.info("Data stored successfully")
 
     except Exception as e:
         print(e)
-@ensure_annotations
 def create_features(hourly_data):
     hourly_data = hourly_data.copy()
 
@@ -369,58 +449,58 @@ def adfuller_test(self, data, sensor_id):
     # print(f"The sensor id {sensor_id}-{dfoutput}")
 
 
-@ensure_annotations
-def store_actual_data(data):
-    # print(data[['Clock', 'Kwh', 'sensor']])
-    # return
-
-    try:
-        logger.info("calling DB configuration")
-        db = os.getenv("db")
-        host = os.getenv("host")
-        port = os.getenv("port")
-        collection_name = os.getenv("collection3")
-
-        MONGO_URL = f"mongodb://{host}:{port}"
-
-        labeled_to_original_mapping = {
-            0: "5f718c439c7a78.65267835",
-            1: "62a9920f75c931.62399458",
-        }
-
-        client = MongoClient(MONGO_URL)
-        db1 = client[db]
-        collection = db1[collection_name]
-
-        # Group data by date
-        grouped_data = data.groupby(data['Clock'].dt.date)
-
-        for date, group in grouped_data:
-            date_str = date.strftime('%Y-%m-%d')
-            document_id = f"{labeled_to_original_mapping.get(group['sensor'].iloc[0], group['sensor'].iloc[0])}_{date_str}"
-
-            document = {
-                "_id": document_id,
-                "sensor_id": labeled_to_original_mapping.get(group['sensor'].iloc[0], group['sensor'].iloc[0]),
-                "creation_time": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-                "millisecond": int(datetime.now().timestamp() * 1000),
-                "data": {}
-            }
-
-            # Populate the 'data' dictionary with hourly predictions
-            for _, row in group.iterrows():
-                actuals = round(float(row['Kwh']), 4)
-                hour = row['Clock'].hour
-                data_key = str(hour)
-                data_value = {
-                    "act_kwh": actuals
-                }
-                document["data"][data_key] = data_value
-
-            # Insert data into MongoDB
-            collection.insert_one(document)
-
-        client.close()
-
-    except Exception as e:
-        print(e)
+# @ensure_annotations
+# def store_actual_data(data):
+#     # print(data[['Clock', 'Kwh', 'sensor']])
+#     # return
+#
+#     try:
+#         logger.info("calling DB configuration")
+#         db = os.getenv("db")
+#         host = os.getenv("host")
+#         port = os.getenv("port")
+#         collection_name = os.getenv("collection3")
+#
+#         MONGO_URL = f"mongodb://{host}:{port}"
+#
+#         labeled_to_original_mapping = {
+#             0: "5f718c439c7a78.65267835",
+#             1: "62a9920f75c931.62399458",
+#         }
+#
+#         client = MongoClient(MONGO_URL)
+#         db1 = client[db]
+#         collection = db1[collection_name]
+#
+#         # Group data by date
+#         grouped_data = data.groupby(data['Clock'].dt.date)
+#
+#         for date, group in grouped_data:
+#             date_str = date.strftime('%Y-%m-%d')
+#             document_id = f"{labeled_to_original_mapping.get(group['sensor'].iloc[0], group['sensor'].iloc[0])}_{date_str}"
+#
+#             document = {
+#                 "_id": document_id,
+#                 "sensor_id": labeled_to_original_mapping.get(group['sensor'].iloc[0], group['sensor'].iloc[0]),
+#                 "creation_time": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+#                 "millisecond": int(datetime.now().timestamp() * 1000),
+#                 "data": {}
+#             }
+#
+#             # Populate the 'data' dictionary with hourly predictions
+#             for _, row in group.iterrows():
+#                 actuals = round(float(row['Kwh']), 4)
+#                 hour = row['Clock'].hour
+#                 data_key = str(hour)
+#                 data_value = {
+#                     "act_kwh": actuals
+#                 }
+#                 document["data"][data_key] = data_value
+#
+#             # Insert data into MongoDB
+#             collection.insert_one(document)
+#
+#         client.close()
+#
+#     except Exception as e:
+#         print(e)

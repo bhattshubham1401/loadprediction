@@ -1,0 +1,15 @@
+artifact_uri: file:///D:/HourlyModel/mlruns/0/501308e90b0543b3b1e69f7ff65fae17/artifacts
+end_time: 1702297162557
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 501308e90b0543b3b1e69f7ff65fae17
+run_name: salty-jay-551
+run_uuid: 501308e90b0543b3b1e69f7ff65fae17
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1702297154950
+status: 3
+tags: []
+user_id: Shubham Bhatt

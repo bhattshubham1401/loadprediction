@@ -1,0 +1,15 @@
+artifact_uri: file:///D:/HourlyModel/mlruns/0/983068a765e149fd868fc009087aff94/artifacts
+end_time: 1702297154858
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 983068a765e149fd868fc009087aff94
+run_name: luminous-hound-395
+run_uuid: 983068a765e149fd868fc009087aff94
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1702297144299
+status: 3
+tags: []
+user_id: Shubham Bhatt

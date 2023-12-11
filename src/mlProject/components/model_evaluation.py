@@ -16,7 +16,7 @@ import pandas as pd
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 
 from src.mlProject.entity.config_entity import ModelEvaluationConfig
-from src.mlProject.utils.common import create_features, add_lags, store_actual_data, store_predictions_in_mongodb
+from src.mlProject.utils.common import create_features, add_lags, store_predictions_in_mongodb
 from src.mlProject import logger
 
 
@@ -34,16 +34,16 @@ class ModelEvaluation:
         # Load the model as a dictionary
         return joblib.load(self.config.model_path)
 
-    def actualData(self, data_sensor):
-        ''' Dumping Previous month Transformed data into mongo db for Actual vs Predited graph'''
-        end_date = datetime.datetime.today().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-        start_date = (end_date - datetime.timedelta(days=end_date.day)).replace(day=1, hour=0, minute=0,
-                                                                                second=0, microsecond=0)
-
-        data_sensor['Clock'] = pd.to_datetime(data_sensor['Clock'])
-        last_month_data = data_sensor[(data_sensor['Clock'] >= start_date) & (data_sensor['Clock'] < end_date)]
-        store_actual_data(last_month_data)
-        return
+    # def actualData(self, data_sensor):
+    #     ''' Dumping Previous month Transformed data into mongo db for Actual vs Predited graph'''
+    #     end_date = datetime.datetime.today().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    #     start_date = (end_date - datetime.timedelta(days=end_date.day)).replace(day=1, hour=0, minute=0,
+    #                                                                             second=0, microsecond=0)
+    #
+    #     data_sensor['Clock'] = pd.to_datetime(data_sensor['Clock'])
+    #     last_month_data = data_sensor[(data_sensor['Clock'] >= start_date) & (data_sensor['Clock'] < end_date)]
+    #     store_actual_data(last_month_data)
+    #     return
 
     def log_into_mlflow(self):
         try:

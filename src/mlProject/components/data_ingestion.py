@@ -1,6 +1,6 @@
 from src.mlProject import logger
 from src.mlProject.entity.config_entity import DataIngestionConfig
-from src.mlProject.utils.common import get_mongoData
+from src.mlProject.utils.common import get_data_from_api_query
 
 
 class DataIngestion:
@@ -9,7 +9,7 @@ class DataIngestion:
 
     def initiateDataIngestion(self):
         try:
-            data = get_mongoData()
+            data = get_data_from_api_query()
             logger.info("Reading Completed from MongoDB")
             logger.info("Writing data in Parquet file")
             # filename = f"{self.config.local_data_file1}data{i}.parquet"

@@ -1,0 +1,15 @@
+artifact_uri: file:///D:/HourlyModel/mlruns/0/b67c41d838a44eac998187fc06a82581/artifacts
+end_time: 1702297144207
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: b67c41d838a44eac998187fc06a82581
+run_name: melodic-boar-525
+run_uuid: b67c41d838a44eac998187fc06a82581
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1702297134667
+status: 3
+tags: []
+user_id: Shubham Bhatt

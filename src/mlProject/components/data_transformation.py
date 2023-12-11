@@ -1,25 +1,29 @@
+import datetime
+import json
 import os
 import traceback
 import warnings
+
 from matplotlib import pyplot as plt
 from sklearn.preprocessing import LabelEncoder
 from statsmodels.tsa.seasonal import seasonal_decompose
-from src.mlProject.utils.common import adfuller_test
+
 from src.mlProject import logger
 from src.mlProject.entity.config_entity import DataTransformationConfig
-import datetime
+
 warnings.filterwarnings("ignore")
 import pandas as pd
 import seaborn as sns
 
 color_pal = sns.color_palette()
 plt.style.use('fivethirtyeight')
-from src.mlProject.utils.common import add_lags, create_features, store_actual_data
+from src.mlProject.utils.common import add_lags, create_features
 
 
 class DataTransformation:
     def __init__(self, config: DataTransformationConfig):
         self.config = config
+        self.le = LabelEncoder()
 
     def initiate_data_transformation(self):
         try:
@@ -28,10 +32,13 @@ class DataTransformation:
             df1['Kwh'] = df1['Kwh'] / 1000
 
             # Label Encoding for 'sensor'
-            le = LabelEncoder()
-            df1['sensor'] = le.fit_transform(df1['sensor'])
+
+            df1['sensor'] = self.le.fit_transform(df1['sensor'])
 
             sensor_ids = df1['sensor'].unique()
+
+            # Create a dictionary to map encoded values to original sensor IDs
+            self.sensorDecode(sensor_ids)
 
             for sensor_id in sensor_ids:
                 sensor_df = df1[df1['sensor'] == sensor_id]
@@ -91,15 +98,33 @@ class DataTransformation:
                 # ''' Dumping Previous month Transformed data into mongo db for Actual vs Predited graph'''
                 end_date = datetime.datetime.today().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
                 start_date = (end_date - datetime.timedelta(days=end_date.day)).replace(day=1, hour=0, minute=0,
-                                                                                         second=0, microsecond=0)
+                                                                                        second=0, microsecond=0)
 
                 dfresample['Clock'] = pd.to_datetime(dfresample['Clock'])
                 last_month_data = dfresample[(dfresample['Clock'] >= start_date) & (dfresample['Clock'] < end_date)]
-                store_actual_data(last_month_data)
+                # store_actual_data(last_month_data)
 
         except Exception as e:
             print(traceback.format_exc())
             logger.info(f"Error occur in Data Transformation Layer {e}")
 
+    def sensorDecode(self, sensor_ids):
+        try:
+            decoded_values = self.le.inverse_transform(sensor_ids)
+            encoded_to_sensor_mapping = {str(encoded_value): str(original_sensor_id) for
+                                         encoded_value, original_sensor_id in
+                                         zip(sensor_ids, decoded_values)}
 
+            # Print the mapping
+            print("Encoded to Sensor ID Mapping:")
+            for encoded_value, original_sensor_id in encoded_to_sensor_mapping.items():
+                print(f"Encoded Value {encoded_value} corresponds to Sensor ID {original_sensor_id}")
 
+            # Write the mapping to a JSON file
+            output_file_path = 'encoded_to_sensor_mapping.json'
+            with open(output_file_path, 'w') as file:
+                json.dump(encoded_to_sensor_mapping, file)
+
+        except ValueError as e:
+            # Handle the case where unknown values are encountered
+            print(f"Error decoding sensor IDs: {e}")
