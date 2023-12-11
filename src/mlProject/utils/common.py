@@ -309,6 +309,7 @@ def store_predictions_in_mongodb(sensor_id, dates, predictions):
             collection.insert_one(data_dict)
 
         client.close()
+        return
 
     except Exception as e:
         print(e)
