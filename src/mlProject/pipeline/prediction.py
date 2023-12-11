@@ -5,7 +5,7 @@ import joblib
 import pandas as pd
 
 from src.mlProject import logger
-from src.mlProject.utils.common import create_features, add_lags, store_predictions_in_mongodb, store_actual_data
+from src.mlProject.utils.common import create_features, add_lags, store_predictions_in_mongodb
 
 
 class PredictionPipeline:
