@@ -75,7 +75,7 @@ class PredictionPipeline:
 
                 future_w_features['pred'] = model.predict(future_w_features[FEATURES])
                 store_predictions_in_mongodb(sensor_id, future_w_features.index, future_w_features['pred'])
-            return f"Data stored"
+            # return f"Data stored"
 
 
         except Exception as e:
