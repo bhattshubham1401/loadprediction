@@ -2,12 +2,13 @@
 
 import json
 import os
-from datetime import datetime
+from datetime import date as datetime_date, timedelta, datetime
+import holidays
 from pathlib import Path
 from typing import Any
 
 import joblib
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import plotly.express as px
@@ -18,9 +19,11 @@ from box.exceptions import BoxValueError
 from dotenv import load_dotenv
 from ensure import ensure_annotations
 from pymongo import MongoClient
+from sklearn.model_selection import train_test_split , TimeSeriesSplit
+
 # from src.mlProject.components.data_transformation import sensorDecode
 
-# from statsmodels.tsa.stattools import adfuller
+from statsmodels.tsa.stattools import adfuller
 
 from src.mlProject import logger
 
@@ -204,7 +207,6 @@ def convert_datetime(input_datetime):
 @ensure_annotations
 def get_data_from_api_query():
     ''' '''
-
     logger.info("fetching data")
     try:
         lst = [
@@ -227,7 +229,9 @@ def get_data_from_api_query():
             '63a4272631f153.67811394',
             '63aa9161b9e7e1.16208626',
             '63ca403ccd66f3.47133508',
-            '62a9920f75c931.62399458']
+            '62a9920f75c931.62399458'
+            ]
+    
         l1 = []
         toDate = datetime(2023, 11, 18, 23, 59, 59)
 
@@ -279,14 +283,14 @@ def load_file():
 
 
 @ensure_annotations
-def plotData(df1):
-    plt.figure(figsize=(10, 6))
-    plt.scatter(df1['KWh'], df1['cumm_PF'], label='Actual')
-    plt.xlabel('KWh ')
-    plt.ylabel('cumm_PF')
-    plt.legend()
-    plt.show()
-    return
+# def plotData(df1):
+#     plt.figure(figsize=(10, 6))
+#     plt.scatter(df1['KWh'], df1['cumm_PF'], label='Actual')
+#     plt.xlabel('KWh ')
+#     plt.ylabel('cumm_PF')
+#     plt.legend()
+#     plt.show()
+#     return
 
     # Line plot
     # sns.lineplot(x='x_column', y='y_column', data=data)
@@ -393,6 +397,7 @@ def store_predictions_in_mongodb(sensor_id, dates, predictions):
 
     except Exception as e:
         print(e)
+
 def create_features(hourly_data):
     hourly_data = hourly_data.copy()
 
@@ -413,30 +418,30 @@ def create_features(hourly_data):
 
 @ensure_annotations
 def add_lags(df):
+    # print(df)
     target_map = df['Kwh'].to_dict()
-    # df['lag1'] = (df.index - pd.Timedelta('1 hour')).map(target_map)
-    # df['lag2'] = (df.index - pd.Timedelta('12 hours')).map(target_map)
-    # df['lag3'] = (df.index - pd.Timedelta('24 hours')).map(target_map)
-
-    # '''will consider this in future'''
     df['lag1'] = (df.index - pd.Timedelta('30 days')).map(target_map)
     df['lag2'] = (df.index - pd.Timedelta('60 days')).map(target_map)
     df['lag3'] = (df.index - pd.Timedelta('90 days')).map(target_map)
 
+    df['lag4'] = (df.index - pd.Timedelta('1 hour')).map(target_map)
+    df['lag5'] = (df.index - pd.Timedelta('12 hours')).map(target_map)
+    df['lag6'] = (df.index - pd.Timedelta('24 hours')).map(target_map)
+
     return df
 
 
-@ensure_annotations
-def rolling_statistics(self, data):
-    MA = data.rolling(window=24).mean()
-    MSTD = data.rolling(window=24).std()
-    plt.figure(figsize=(15, 5))
-    orig = plt.plot(data, color='black', label='Original')
-    mean = plt.plot(MA, color='red', label='MA')
-    std = plt.plot(MSTD, color='yellow', label='MSTD')
-    plt.legend(loc='best')
-    plt.title("Rolling Mean and standard Deviation")
-    plt.show()
+# @ensure_annotations
+# def rolling_statistics(self, data):
+#     MA = data.rolling(window=24).mean()
+#     MSTD = data.rolling(window=24).std()
+#     plt.figure(figsize=(15, 5))
+#     orig = plt.plot(data, color='black', label='Original')
+#     mean = plt.plot(MA, color='red', label='MA')
+#     std = plt.plot(MSTD, color='yellow', label='MSTD')
+#     plt.legend(loc='best')
+#     plt.title("Rolling Mean and standard Deviation")
+#     plt.show()
 
 
 @ensure_annotations
@@ -504,3 +509,262 @@ def adfuller_test(self, data, sensor_id):
 #
 #     except Exception as e:
 #         print(e)
+
+@ensure_annotations
+def data_from_weather_api():
+    ''' weather data'''
+    logger.info("weather data fetching")
+    try:
+        l1=[]
+        value=[]
+        start_date = "2022-11-18"
+        end_date = "2023-11-18"
+        url = f"https://archive-api.open-meteo.com/v1/archive?latitude=28.58&longitude=77.33&start_date={start_date}&end_date={end_date}&hourly=temperature_2m,relative_humidity_2m,rain,cloud_cover,wind_speed_10m&timezone=auto"
+        response = requests.get(url)
+        response.raise_for_status()
+        data = response.json()
+        l1.append(data)
+        
+        data1=l1[0]
+        data_dict=data1['hourly']
+        
+        for i in range(len(data_dict['time'])):
+            value.append({
+                        "Clock":data_dict['time'][i],
+                        "temp":data_dict['temperature_2m'][i],
+                        "humidity":data_dict['relative_humidity_2m'][i],
+                        "rain":data_dict['rain'][i],
+                        "cloud_cover":data_dict['cloud_cover'][i],
+                        "wind_speed":data_dict['wind_speed_10m'][i],
+                        
+                        })
+        df=pd.DataFrame(value)
+        df['Clock']=pd.to_datetime(df['Clock'])
+        df.set_index("Clock",inplace=True, drop=True)
+        df["temp_diff"]=df['temp']-df['temp'].shift(1)
+        df.drop(['temp'],axis=1,inplace=True)
+        df.fillna(value=0,inplace=True)
+        # df.dropna(inplace=True)
+        return df
+    
+    except Exception as e:
+        print(e) 
+
+@ensure_annotations
+def holidays_list():
+    logger.info("holidays list")
+    try:
+        start_date = datetime_date(2023, 1, 1)
+        end_date = datetime_date(2023, 11, 18)
+        holiday_list = []
+
+        def is_holiday(single_date):
+            year = single_date.year
+            country_holidays = holidays.CountryHoliday('India', years=year)
+            return single_date in country_holidays
+
+        date_list = [
+            (single_date, holidays.CountryHoliday('India', years=single_date.year)[single_date])
+            for single_date in (start_date + timedelta(n) for n in range((end_date - start_date).days + 1))
+            if is_holiday(single_date)]
+        for date, name in date_list:
+            # print(f"{date}: {name}")
+            holiday_list.append(date)
+
+        return holiday_list
+    except Exception as e:
+            print(e)
+
+# def holidays_list(start_date, end_date):
+#     logger.info("holidays list")
+#     try:
+#         holiday_list = []
+
+#         def is_holiday(single_date):
+#             year = single_date.year
+#             country_holidays = holidays.CountryHoliday('India', years=year)
+#             return single_date in country_holidays or single_date.weekday() == 6  # Sunday is represented by 6
+
+#         date_list = [
+#             (single_date, holidays.CountryHoliday('India', years=single_date.year).get(single_date))
+#             for single_date in (start_date + timedelta(n) for n in range((end_date - start_date).days + 1))
+#             if is_holiday(single_date)]
+#         for date, name in date_list:
+#             # print(f"{date}: {name}")
+#             holiday_list.append(date)
+#         return holiday_list
+#     except Exception as e:
+#         print(e)
+
+
+
+@ensure_annotations
+def dataset_count():
+    try:
+        logger.info("calling DB configuration for data")
+        host = os.getenv("host")
+        port = os.getenv("port")
+        db = os.getenv("db")
+        collection_name = os.getenv("collection2")
+
+        mongo_url = f"mongodb://{host}:{port}"
+        client = MongoClient(mongo_url)
+        db1 = client[db]
+        collection = db1[collection_name]
+        # db1.collection.drop()
+        count = collection.count_documents({})
+        client.close()
+
+        return count
+    
+    except Exception as e:
+        print(e)
+
+@ensure_annotations
+def initialize_mongodb(collection_name):
+    try:
+        logger.info("DB connection established")
+        host = os.getenv("host")
+        port = os.getenv("port")
+        db = os.getenv("db")
+        collection_name1 = os.getenv("collection1")
+        collection_name2 = os.getenv("collection2")
+        collection_name3 = os.getenv("collection3")
+        collection_name4 = os.getenv("collection4")
+        # print(db)
+        # print(collection_name1)
+        # print(collection_name2)
+        # print(collection_name3)
+
+
+        mongo_url = f"mongodb://{host}:{port}"
+        client = MongoClient(mongo_url)
+        db1 = client[db]
+        collection1 = db1[collection_name1]
+        collection2 = db1[collection_name2]
+        collection3 = db1[collection_name3]
+       
+        if type(collection_name)== list:
+            return db1, client, collection1, collection2, collection3
+        elif collection_name == "sensor":
+            return client, collection1
+        elif collection_name == "train":
+            return client, collection2
+        elif collection_name == "test":
+            return client, collection3
+    except Exception as e:
+            print(e)  
+
+@ensure_annotations
+# def store_sensor_data_in_db(sensor_id, df,collection, db, sensorName)
+def store_sensor_data_in_db(db, collection1, collection2, collection3, sensor_id,\
+                             sensorName, dfresample, train_data, test_data):
+    try:
+        if sensor_id == 0 :
+            logger.info("Data found")
+            # db.collection1.drop()
+            # db.collection2.drop()
+            # db.collection3.drop()
+            db.drop_collection(collection1.name)
+            db.drop_collection(collection2.name)
+            db.drop_collection(collection3.name)
+
+        sensor_data1 = dfresample.to_dict(orient='records')
+        id_data1 = { "sensor_id": sensor_id, "sensor_name": sensorName, "data": sensor_data1 }
+        
+        train_data1 = train_data.to_dict(orient='records')
+        id_data2 = { "sensor_id": sensor_id, "sensor_name": sensorName, "data": train_data1 }
+        
+        test_data1 = test_data.to_dict(orient='records')
+        id_data3 = { "sensor_id": sensor_id, "sensor_name": sensorName, "data": test_data1 }
+        
+        collection1.insert_one(id_data1)
+        collection2.insert_one(id_data2)
+        collection3.insert_one(id_data3)
+        logger.info("Data stored")
+
+    except Exception as e:
+        print(e)    
+
+@ensure_annotations
+def data_fetching(collection, i):
+    try:
+        data_list = list(collection.find({"sensor_id":i}, {'_id': 0,"sensor_name" : 1, 'data': 1}))
+        df = pd.DataFrame(data_list[0]['data'])
+        sensor_name = data_list[0]['sensor_name']
+        return df, sensor_name
+    except Exception as e:
+        print(e)    
+
+@ensure_annotations
+def uom():
+    try:
+        sensor_ids = [
+            '5f718b613291c7.03696209','5f718c439c7a78.65267835',
+            '614366bce31a86.78825897','6148740eea9db0.29702291','625fb44c5fb514.98107900',
+            '625fb9e020ff31.33961816','6260fd4351f892.69790282','627cd4815f2381.31981050',
+            '629094ee5fdff4.43505210','62aad7f5c65185.80723547','62b15dfee341d1.73837476',
+            '62b595eabd9df4.71374208','6349368c306542.16235883','634e7c43038801.39310596',
+            '6399a18b1488b8.07706749','63a4195534d625.00718490','63a4272631f153.67811394',
+            '63aa9161b9e7e1.16208626','63ca403ccd66f3.47133508','62a9920f75c931.62399458'
+            ]
+    
+
+        url = "https://multipoint.myxenius.com/Sensor_newHelper/getDataApi"
+        params = {
+
+            'sql': "SELECT id AS uuid, name AS sensorName, CASE WHEN grid_billing_type IS NOT NULL THEN grid_billing_type ELSE 'UOM' END AS uom FROM sensor WHERE id IN ({}) ORDER BY name".format(
+                ','.join(f"'{sid}'" for sid in sensor_ids)),
+            'type': 'query'
+        }
+        response = requests.get(url, params=params)
+        response.raise_for_status()
+        data = response.json()
+        sensor_list = [{'uuid': item['uuid'], 'sensorName': item['sensorName'], "UOM": item['uom']} for item in
+                       data['resource']]
+        df = pd.DataFrame(sensor_list)
+        logger.info("UOM values")
+        return df
+
+
+    except Exception as e:
+        print(e)
+
+@ensure_annotations
+def test_train_split(df1):
+    try:
+        tss = TimeSeriesSplit(n_splits=5, test_size=24 * 30 * 1, gap=24)
+        df = df1.sort_index()
+        # df.dropna(subset=['Kwh'], inplace=True)
+        for train_idx, val_idx in tss.split(df):
+            train_data = df.iloc[train_idx]
+            test_data = df.iloc[val_idx]
+            return train_data, test_data
+    except Exception as e:
+        print(e)
+
+@ensure_annotations
+def store_test_data(df, id, db, collection):
+    try:
+        collection_name = os.getenv("collection3")
+        # collection = db[collection_name]
+        if id == 0 :
+            db.drop_collection(collection_name)
+            logger.info("deleted found test_data")
+
+        data1 = df.to_dict(orient='records')
+        id_data = { "sensor_id": id, "data": data1 }
+
+        collection.insert_one(id_data)
+    except Exception as e:
+        print(e)
+
+@ensure_annotations
+def test_data_fetching(collection, i):
+    try:
+        data_list = list(collection.find({"sensor_id":i}, {'_id': 0,"sensor_name" : 1, 'data': 1}))
+        df = pd.DataFrame(data_list[0]['data'])
+        sensor_name = data_list[0]['sensor_name']
+        return df, sensor_name
+    except Exception as e:
+        print(e)    

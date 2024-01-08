@@ -1,9 +1,13 @@
 XG_Boost:
-    n_estimators: 200
-    max_depth: 10
-    learning_rate : 0.3
-    subsample: 1.0
-    colsample_bytree: 0.9
+    # n_estimators: [50]
+    # max_depth: [5]
+    # learning_rate: [0.1]
+    # subsample: [0.1]
+    n_estimators: [50, 100, 150, 200]
+    max_depth: [5, 10, 15, 20]
+    learning_rate: [0.1, 0.3, 0.5, 0.7]
+    subsample: [0.1, 0.5, 0.7, 0.8]
+    # colsample_bytree: 0.9
 
 
 #base_score=0.5, booster='gbtree',

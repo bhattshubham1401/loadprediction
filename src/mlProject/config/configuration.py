@@ -64,7 +64,7 @@ class ConfigurationManager:
             test_data_path=config.test_data_path,
             model_name=config.model_name,
             subsample=params.subsample,
-            colsample_bytree=params.colsample_bytree,
+            # colsample_bytree=params.colsample_bytree,
             n_estimators=params.n_estimators,
             max_depth=params.max_depth,
             learning_rate=params.learning_rate,

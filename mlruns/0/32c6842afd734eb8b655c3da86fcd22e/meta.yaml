@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/DELL/Desktop/MyLoadForcasting/mlruns/0/32c6842afd734eb8b655c3da86fcd22e/artifacts
+end_time: 1704718245960
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 32c6842afd734eb8b655c3da86fcd22e
+run_name: capricious-kit-129
+run_uuid: 32c6842afd734eb8b655c3da86fcd22e
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1704718242944
+status: 3
+tags: []
+user_id: DELL
