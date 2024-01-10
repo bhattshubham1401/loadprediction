@@ -1,34 +1,24 @@
 import os
 import traceback
-
 import joblib
 import pandas as pd
 from xgboost import XGBRegressor
-
 from src.mlProject import logger
 from src.mlProject.entity.config_entity import ModelTrainerConfig
-
 from sklearn.model_selection import RandomizedSearchCV
-
-from sklearn.model_selection import  TimeSeriesSplit
 from src.mlProject.utils.common import initialize_mongodb, data_fetching
 
 
 class ModelTrainer:
     def __init__(self, config: ModelTrainerConfig):
         self.config = config
-        # self.test  =  test_data
 
     def train(self):
         try:
-            
             client, collection = initialize_mongodb("train")
             models_dict = {}
             count = collection.count_documents({})
-            print("no. of id's",count)
-
             for i in range(count):
-
                 train_data , name = data_fetching(collection,i)
                 train_data.set_index(['Clock'], inplace=True, drop=True)
                 
@@ -82,7 +72,7 @@ class ModelTrainer:
                 best_xgb_model.fit(X_train, y_train)
 
                 models_dict[i] = best_xgb_model
-                # print(models_dict)
+                
             # Save the dictionary of models as a single .joblib file
             joblib.dump(models_dict, os.path.join(self.config.root_dir, self.config.model_name))
 
@@ -92,5 +82,5 @@ class ModelTrainer:
 
         finally:
             client.close()
-            print("db connection closed")
+            logger.info("db connection closed")
 

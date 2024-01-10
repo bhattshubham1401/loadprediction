@@ -22,6 +22,7 @@ class DataTransformationConfig:
     root_dir: Path
     data_dir: Path
     data_file_path: Path
+    weather_data_file_path: Path
 
 @dataclass(frozen=True)
 class ModelTrainerConfig:

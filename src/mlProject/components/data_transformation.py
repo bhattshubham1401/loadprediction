@@ -1,27 +1,17 @@
-import datetime
 import json
 import os
 import traceback
 import warnings
-
-from matplotlib import pyplot as plt
+from datetime import date as datetime_date
 from sklearn.preprocessing import LabelEncoder
-from statsmodels.tsa.seasonal import seasonal_decompose
-
 from src.mlProject import logger
 from src.mlProject.entity.config_entity import DataTransformationConfig
-
 warnings.filterwarnings("ignore")
 import pandas as pd
-import seaborn as sns
-
-from statsmodels.tsa.stattools import adfuller
-from sklearn.model_selection import train_test_split , TimeSeriesSplit
-color_pal = sns.color_palette()
-plt.style.use('fivethirtyeight')
-from src.mlProject.utils.common import add_lags, create_features ,data_from_weather_api ,\
-    holidays_list, store_sensor_data_in_db, initialize_mongodb, uom
-
+import numpy as np
+from sklearn.model_selection import  TimeSeriesSplit
+from src.mlProject.utils.common import add_lags, create_features ,\
+    holidays_list, store_sensor_data_in_db, initialize_mongodb, uom #, data_from_weather_api 
 
 class DataTransformation:
     def __init__(self, config: DataTransformationConfig):
@@ -30,23 +20,36 @@ class DataTransformation:
 
     def initiate_data_transformation(self):
         try:
-            db, client, collection1, collection2, collection3 = initialize_mongodb(["sensor", 'train', 'test'])
+            client, collection5, collection6, collection7 = initialize_mongodb(["sensor", 'train', 'test'])
             df1 = pd.read_parquet(self.config.data_dir)
-            # df1['Kwh'] = df1['Kwh'] / 1000
 
             # Label Encoding for 'sensor'
             df1['label_sensor'] = self.le.fit_transform(df1['sensor'])
             sensor_ids = df1['label_sensor'].unique()
-            
+
             # Create a dictionary to map encoded values to original sensor IDs
             self.sensorDecode(sensor_ids)
 
             # using groupby function to collect data of each_id
             dframe = df1.groupby('label_sensor')
 
+            # UOM and sensor_name
             df_uom = uom()
-            holiday_lst = holidays_list()
-            weather_data = data_from_weather_api()
+            
+            # holidays data
+            start_date = datetime_date(2022, 11, 30)
+            end_date = datetime_date(2023, 11, 30)
+            holiday_lst = holidays_list(start_date, end_date)
+            
+            # weather data
+            weather_data = pd.read_csv(self.config.weather_data_file_path)
+            weather_data['Clock'] = pd.to_datetime(weather_data['Clock'])
+            weather_data.set_index(['Clock'],inplace=True, drop=True)
+            weather_data.drop(['temp'],axis=1,inplace=True)
+            weather_data.drop(['precipitation','apparent_temp'],axis=1,inplace=True)
+            # weather data from API
+            # weather_data = data_from_weather_api()
+            
             for labeled_id, data in dframe:
                 sensor_df = data
 
@@ -60,6 +63,7 @@ class DataTransformation:
                 '''Data Conversion'''
                 sensor_df['Clock'] = pd.to_datetime(sensor_df['Clock'])
                 sensor_df.set_index(['Clock'], inplace=True, drop=True)
+
                 sensor_df = sensor_df[sensor_df.index >= '2022-11-18 00:00:00']
                 sensor_id = sensor_df['sensor'].unique()
                 uom_value = df_uom[df_uom['uuid'] == sensor_id[0]]['UOM'].values[0]
@@ -70,23 +74,21 @@ class DataTransformation:
                 '''Resampling dataframe into one-hour interval '''
 
                 dfresample = sensor_df[['Kwh']].resample(rule='1H').sum()
-                dfresample.dropna(subset=['Kwh'], inplace=True)
-                dfresample.fillna(value= 0 , inplace=True)
+
                 dfresample['labeled_id'] = labeled_id
                 dfresample['sensor_id'] = sensor_id[0]
-                dfresample['holiday'] = 0
-                sensor_df.reset_index(['Clock'], inplace=True, drop=True)
                 
                 # adding weather data
                 dfresample=pd.merge(dfresample,weather_data, on="Clock")
 
                 # adding holidays
-                for date in holiday_lst:
-                    dfresample.loc[f"{date}", 'holiday'] = 1
-                dfresample.dropna(inplace=True)
-
+                # dfresample['holiday'] = dfresample['Clock'].dt.date.isin(holiday_lst).astype(int)   
+                dfresample['holiday'] = np.isin(dfresample.index.date, holiday_lst).astype(int)
+                
+                # adding lags and features
                 dfresample = add_lags(dfresample)
                 dfresample = create_features(dfresample)
+                
                 dfresample.reset_index(inplace=True)
 
                 tss = TimeSeriesSplit(n_splits=5, test_size=24 * 30 * 1, gap=24)
@@ -97,10 +99,9 @@ class DataTransformation:
                     test_data = df.iloc[val_idx]
 
                 # storing each sensor_id data in db for testing and training
-                store_sensor_data_in_db(db, collection1, collection2, collection3, labeled_id, sensor_name,
+                store_sensor_data_in_db(collection5, collection6, collection7, labeled_id, sensor_name,
                                          dfresample, train_data, test_data)
-
-            print("count of id's",collection1.count_documents({}))
+            logger.info(f"count of id's in db {collection5.count_documents({})}")
 
         except Exception as e:
             # print(traceback.format_exc())
@@ -108,7 +109,7 @@ class DataTransformation:
 
         finally:
             client.close()
-            print("db connection closed")
+            logger.info("db connection closed")
 
     def sensorDecode(self, sensor_ids):
         try:

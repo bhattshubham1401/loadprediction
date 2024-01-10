@@ -15,6 +15,7 @@ data_transformation:
   root_dir: artifacts/data_transformation
   data_dir: artifacts/data_ingestion/data.parquet
   data_file_path : artifacts/data_ingestion/
+  weather_data_file_path : weather.csv
 
 model_trainer:
   root_dir: artifacts/model_trainer
