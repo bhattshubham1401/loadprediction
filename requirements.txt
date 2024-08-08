@@ -25,7 +25,6 @@ streamlit~=1.28.2
 requests~=2.31.0
 seaborn~=0.12.2
 
--e .
 
 holidays~=0.39
 pathlib~=1.0.1
@@ -39,3 +38,5 @@ Jinja2~=3.1.2
 packaging~=23.1
 pyparsing~=3.0.9
 zipp~=3.17.0
+
+
