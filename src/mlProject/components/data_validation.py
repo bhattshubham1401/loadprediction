@@ -13,6 +13,8 @@ class DataValidation:
             read_df = pd.read_parquet(self.config.data_dir)
             col = list(read_df.columns)
             schema = self.config.all_schema.keys()
+            print(schema)
+
 
             for items in col:
                 if items not in schema:

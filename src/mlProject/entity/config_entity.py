@@ -32,7 +32,9 @@ class ModelTrainerConfig:
     n_estimators: int
     max_depth: int
     subsample: int
-    # colsample_bytree: int
+    reg_alpha: float
+    colsample_bytree: float
+    # eta: float
     learning_rate: float
     target_column: float
 

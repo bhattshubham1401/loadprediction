@@ -64,8 +64,10 @@ class ConfigurationManager:
             test_data_path=config.test_data_path,
             model_name=config.model_name,
             subsample=params.subsample,
-            # colsample_bytree=params.colsample_bytree,
+            colsample_bytree=params.colsample_bytree,
             n_estimators=params.n_estimators,
+            # eta=params.eta,
+            reg_alpha=params.reg_alpha,
             max_depth=params.max_depth,
             learning_rate=params.learning_rate,
             target_column=schema.Kwh,
@@ -86,7 +88,7 @@ class ConfigurationManager:
             all_params=params,
             metric_file_name=config.metric_file_name,
             target_column=schema.Kwh,
-            mlflow_uri="https://dagshub.com/bhattshubham1401/HourlyConsumptionPredN.mlflow"
+            mlflow_uri="https://dagshub.com/bhattshubham1401/loadprediction.mlflow"
 
         )
         return model_evaluation_config

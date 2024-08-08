@@ -22,7 +22,7 @@ def training():
 
 @app.route('/predict', methods=['POST', 'GET'])  # route to show the predictions in a web UI
 def index():
-    if request.method == 'POST':
+    if request.method == 'GET':
         try:
             # #  reading the inputs given by the user
             # startDate = datetime.strptime(request.form['start_date'], '%Y-%m-%d')
@@ -34,6 +34,7 @@ def index():
 
             obj = PredictionPipeline()
             obj.predict()
+            return
             # print(f"The Predicted data is sucessfully stored in the Database")
 
         except Exception as e:
@@ -46,4 +47,4 @@ def index():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8090)
+    app.run(host="127.0.0.1", port=8090)

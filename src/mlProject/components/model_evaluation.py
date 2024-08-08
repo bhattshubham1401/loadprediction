@@ -1,11 +1,11 @@
-import os
-import traceback
 import datetime
+import traceback
 from urllib.parse import urlparse
 
 import joblib
 import matplotlib.pyplot as plt
 import seaborn as sns
+from sklearn.model_selection import TimeSeriesSplit
 
 color_pal = sns.color_palette()
 plt.style.use('fivethirtyeight')
@@ -16,9 +16,8 @@ import pandas as pd
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 
 from src.mlProject.entity.config_entity import ModelEvaluationConfig
-from src.mlProject.utils.common import create_features, add_lags, store_predictions_in_mongodb
+from src.mlProject.utils.common import create_features, add_lags
 from src.mlProject import logger
-
 
 # class ModelEvaluation:
 #     def __init__(self, config: ModelEvaluationConfig):
@@ -107,7 +106,7 @@ from src.mlProject import logger
 #                 with mlflow.start_run():
 #                     future_w_features['pred'] = model.predict(future_w_features[FEATURES])
 #                     # print(sensor_id, future_w_features.index, future_w_features['pred'])
-                    # store_predictions_in_mongodb(sensor_id, future_w_features.index, future_w_features['pred'])
+# store_predictions_in_mongodb(sensor_id, future_w_features.index, future_w_features['pred'])
 #                     # store_actual_val(sensor_id, future_w_features.index, future_w_features['pred'])
 
 #                     # Model registry does not work with file store
@@ -136,9 +135,11 @@ from pathlib import Path
 from datetime import datetime, timedelta
 # from src.mlProject.entity.config_entity import ModelEvaluationConfig
 from src.mlProject.utils.common import save_json, initialize_mongodb, data_fetching
+
+
 # from src.mlProject.components.data_transformation import create_features, add_lags
 # from src.mlProject.utils.common import store_predictions_in_mongodb
-from sklearn.model_selection import train_test_split , TimeSeriesSplit
+
 
 class ModelEvaluation:
     def __init__(self, config: ModelEvaluationConfig):
@@ -161,6 +162,7 @@ class ModelEvaluation:
     def predict_future_values(self, model, sensor_id, num_periods=24):
         Current_Date = datetime.today()
         NextDay_Date = datetime.today() + timedelta(days=1)
+
         # Predict for future dates
         future_dates = pd.date_range(start=Current_Date, end=NextDay_Date, freq='H')
         # future_x[0]= 'Clock'
@@ -170,10 +172,10 @@ class ModelEvaluation:
         # Include lag features in future_x
         # print(future_x)
         future_x = add_lags(future_x)
-        # print(future_x)
-        FEATURES = ['labeled_id', 'holiday', 'humidity', 'rain','cloud_cover', 'wind_speed', 'temp_diff',
-                            'lag1', 'lag2', 'lag3','lag4', 'lag5', 'lag6', 'day', 'hour', 'month',
-                            'dayofweek', 'quarter','dayofyear', 'weekofyear', 'year']
+        # print(future_x)'is_holiday',
+        FEATURES = ['relative_humidity_2m', 'apparent_temperature',
+                    'rain',
+                    'lag1', 'lag2', 'lag3', 'day', 'hour', 'month', 'year', 'is_holiday']
 
         X_all = future_x[FEATURES]
 
@@ -188,35 +190,65 @@ class ModelEvaluation:
         mlflow.log_artifact(future_predictions_file_path)
 
     def log_into_mlflow(self):
-            try:
-                # Load the model as a dictionary
-                loaded_model_dict = self.load_model_as_dict()
-                
-                # Check if the loaded model is a dictionary
-                if not isinstance(loaded_model_dict, dict):
-                    logger.warning("Loaded model is not a dictionary.")
-                    return
-                
-                mlflow.set_registry_uri(self.config.mlflow_uri)
-                tracking_url_type_store = urlparse(mlflow.get_tracking_uri()).scheme
-                
-                client, collection = initialize_mongodb("test")
-                models_dict = {}
-                count = collection.count_documents({})
-                metrix_dict = {}
-                for i in range(count):
-                    test_data, name = data_fetching(collection,i)
-                    # print(dfresample.columns)
-                    test_data.set_index(['Clock'], inplace=True, drop=True)
-                        
-                    FEATURES = ['labeled_id', 'holiday', 'humidity', 'rain','cloud_cover', 'wind_speed', 'temp_diff',
-                            'lag1', 'lag2', 'lag3','lag4', 'lag5', 'lag6', 'day', 'hour', 'month',
-                            'dayofweek', 'quarter','dayofyear', 'weekofyear', 'year']
-                    TARGET = ['Kwh']
+        try:
+            # Load the model as a dictionary
+            loaded_model_dict = self.load_model_as_dict()
+
+            # Check if the loaded model is a dictionary
+            if not isinstance(loaded_model_dict, dict):
+                logger.warning("Loaded model is not a dictionary.")
+                return
+
+            mlflow.set_registry_uri(self.config.mlflow_uri)
+            tracking_url_type_store = urlparse(mlflow.get_tracking_uri()).scheme
+            # tracking_url_type_store = "http://127.0.0.1:5000"
+            print(tracking_url_type_store)
+
+            client, collection = initialize_mongodb("transformed_data")
+            count = collection.count_documents({})
+            metrix_dict = {}
+            for i in range(count):
+                data = data_fetching(collection, i)
+                if not data.empty:
+                    # print(name) 'is_holiday',
+                    data.set_index(['Clock'], inplace=True, drop=True)
+                    FEATURES = ['relative_humidity_2m', 'apparent_temperature', 'precipitation', 'wind_speed_10m',
+                                'holiday', 'lag1', 'lag2', 'lag3', 'dayofyear', 'hour', 'dayofweek', 'quarter', 'month',
+                                'year']
+
+                    TARGET = 'Kwh'
+
+                    X = data[FEATURES]
+                    y = data[TARGET]
+                    total_length = len(X)
+                    # print(X.head())
+
+                    if total_length < 50:
+                        print(f"Not enough data for sensor {i}. Skipping...")
+                        continue
+
+                    # Calculate dynamic split sizes
+                    # train_size = int(0.7 * total_length)
+                    # test_size = len(X) - train_size
+                    # gap = 24
+
+                    # test_size = 24 * 2  # 7 days * 24 hours/day
+                    # gap = 24  # 1 day * 24 hours/day
+                    #
+                    # total_size = test_size + gap
+
+                    tss = TimeSeriesSplit(n_splits=3)
+                    df = data.sort_index()
+
+                    for train_idx, val_idx in tss.split(df):
+                        # train_data = data.iloc[train_idx]
+                        test_data = df.iloc[val_idx]
+
                     test_x = test_data[FEATURES]
                     test_y = test_data[TARGET]
 
                     model = loaded_model_dict.get(i)
+                    # print(model)
 
                     if model is None:
                         logger.warning(f"Model for sensor {i} not found.")
@@ -225,28 +257,33 @@ class ModelEvaluation:
                     with mlflow.start_run():
                         predicted_kwh = model.predict(test_x)
                         (rmse, mae, r2) = self.eval_metrics(test_y, predicted_kwh)
+                        predicted_df = pd.DataFrame(predicted_kwh, index=test_y.index, columns=["Predicted_Kwh"])
+
+                        # Concatenate the predicted values DataFrame with the actual 'Kwh' values DataFrame
+                        result_df = pd.concat([predicted_df, test_y], axis=1)
+
+                        # Print the result
 
                         # Saving metrics as local
                         scores = {"rmse": rmse, "mae": mae, "r2": r2}
-                        metrix_dict[f'{name}'] = scores
+                        metrix_dict[f'{i}'] = scores
 
-                        mlflow.log_params(self.config.all_params)
+                        plt.figure(figsize=(10, 6))
+                        plt.plot(result_df.index, result_df['Predicted_Kwh'], label='Predicted Kwh', color='blue')
+                        plt.plot(result_df.index, result_df['Kwh'], label='Actual Kwh', color='red')
+                        plt.xlabel('Time')
+                        plt.ylabel('Kwh')
+                        plt.title('Predicted vs Actual Kwh')
+                        plt.legend()
+                        plt.xticks(rotation=45)
+                        plt.tight_layout()
+                        # plt.show()
 
-                        mlflow.log_metric("rmse", rmse)
-                        mlflow.log_metric("r2", r2)
-                        mlflow.log_metric("mae", mae)
+            save_json(path=Path(self.config.metric_file_name), data=metrix_dict)
 
-                        # Model registry does not work with file store
-                        if tracking_url_type_store != "file":
-                            # Register the model
-                            mlflow.sklearn.log_model(model, "model", registered_model_name=f"{i}_Model")
-                        else:
-                            mlflow.sklearn.log_model(model, "model")
-                save_json(path=Path(self.config.metric_file_name), data = metrix_dict)
-
-            except Exception as e:
-                logger.error(f"Error in Model Evaluation: {e}")
-                print(traceback.format_exc())
-            finally:
-                client.close()
-                print("db connection closed")
+        except Exception as e:
+            logger.error(f"Error in Model Evaluation: {e}")
+            print(traceback.format_exc())
+        # finally:
+        #     client.close()
+        #     print("db connection closed")

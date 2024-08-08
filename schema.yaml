@@ -7,6 +7,9 @@ COLUMNS:
   R_Current: float64
   Y_Current: float64
   B_Current: float64
+  Kwh: float64
 
 TARGET_COLUMN:
   Kwh: float64
+
+

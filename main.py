@@ -16,9 +16,9 @@ logger.info("We are printing the logs here!!!")
 # except Exception as e:
 #     logger.exception(e)
 #     raise e
-
+#
 # STAGE_NAME = "Data Validation"
-
+#
 # try:
 #     logger.info(f">>>>>>>>>>>>>>>>Stage {STAGE_NAME} Started <<<<<<<<<<<<<<")
 #     obj = DataValidationTrainingPipeline()
@@ -29,7 +29,7 @@ logger.info("We are printing the logs here!!!")
 #     raise e
 
 # STAGE_NAME = "Data Transformation"
-
+#
 # try:
 #     logger.info(f">>>>>>>>>>>>>>>>Stage {STAGE_NAME} Started <<<<<<<<<<<<<<")
 #     obj = DataTransformationTrainingPipeline()
@@ -38,10 +38,9 @@ logger.info("We are printing the logs here!!!")
 # except Exception as e:
 #     logger.exception(e)
 #     raise e
-    
 
 # STAGE_NAME = "Model Training"
-
+# #
 # try:
 #     logger.info(f">>>>>>>>>>>>>>>>Stage {STAGE_NAME} Started <<<<<<<<<<<<<<")
 #     obj = ModelTrainingPipeline()
