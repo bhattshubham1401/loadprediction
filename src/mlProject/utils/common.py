@@ -316,6 +316,8 @@ def get_data_from_api_query():
                 "r_count": "5000"
             }
             response = requests.post(url, json=params, headers=headers)
+            print(response)
+            print("=================================================================")
             response.raise_for_status()
             data = response.json()
             print(data)
