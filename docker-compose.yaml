@@ -4,7 +4,7 @@ services:
   main-script:
     build:
       context: .
-      dockerfile: Dockerfile.main
+      dockerfile: Dockerfile
     command: python3 main.py
 
 #  app-script:
