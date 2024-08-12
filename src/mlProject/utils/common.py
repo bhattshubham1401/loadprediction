@@ -315,13 +315,18 @@ def get_data_from_api_query():
                 "sub_type": "FDR",
                 "r_count": "5000"
             }
-            response = requests.post(url, json=params, headers=headers)
-            print(response)
-            print("=================================================================")
-            response.raise_for_status()
-            data = response.json()
-            print(data)
-            l1.append(data['DATA'])
+            try:
+                response = requests.post(url, json=params, headers=headers)
+                response.raise_for_status()
+                data = response.json()
+                l1.append(data['DATA'])
+            except requests.exceptions.HTTPError as http_err:
+                print(f'HTTP error occurred: {http_err}')
+                print(f'Response content: {response.content}')
+            except KeyError as key_err:
+                print(f'Key error occurred: {key_err}')
+            except Exception as err:
+                print(f'Other error occurred: {err}')
 
         columns = ['sensor', 'Clock', 'R_Current', 'Y_Current', 'B_Current', 'R_Voltage', 'Y_Voltage', 'B_Voltage',
                    'Kwh', 'BlockEnergy-WhExp', 'BlockEnergy-VArhQ1', 'BlockEnergy-VArhQ2', 'BlockEnergy-VArhQ3',
