@@ -17,27 +17,27 @@ except Exception as e:
     logger.exception(e)
     raise e
 
-STAGE_NAME = "Data Validation"
-
-try:
-    logger.info(f">>>>>>>>>>>>>>>>Stage {STAGE_NAME} Started <<<<<<<<<<<<<<")
-    obj = DataValidationTrainingPipeline()
-    obj.main()
-    logger.info(f">>>>>>>>>>>>>>>>>Stage {STAGE_NAME} Completed<<<<<<<<<<<")
-except Exception as e:
-    logger.exception(e)
-    raise e
-
-STAGE_NAME = "Data Transformation"
-
-try:
-    logger.info(f">>>>>>>>>>>>>>>>Stage {STAGE_NAME} Started <<<<<<<<<<<<<<")
-    obj = DataTransformationTrainingPipeline()
-    obj.main()
-    logger.info(f">>>>>>>>>>>>>>>>>Stage {STAGE_NAME} Completed<<<<<<<<<<<<")
-except Exception as e:
-    logger.exception(e)
-    raise e
+# STAGE_NAME = "Data Validation"
+#
+# try:
+#     logger.info(f">>>>>>>>>>>>>>>>Stage {STAGE_NAME} Started <<<<<<<<<<<<<<")
+#     obj = DataValidationTrainingPipeline()
+#     obj.main()
+#     logger.info(f">>>>>>>>>>>>>>>>>Stage {STAGE_NAME} Completed<<<<<<<<<<<")
+# except Exception as e:
+#     logger.exception(e)
+#     raise e
+#
+# STAGE_NAME = "Data Transformation"
+#
+# try:
+#     logger.info(f">>>>>>>>>>>>>>>>Stage {STAGE_NAME} Started <<<<<<<<<<<<<<")
+#     obj = DataTransformationTrainingPipeline()
+#     obj.main()
+#     logger.info(f">>>>>>>>>>>>>>>>>Stage {STAGE_NAME} Completed<<<<<<<<<<<<")
+# except Exception as e:
+#     logger.exception(e)
+#     raise e
 
 # STAGE_NAME = "Model Training"
 #

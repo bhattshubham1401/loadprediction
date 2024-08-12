@@ -302,7 +302,7 @@ def get_data_from_api_query():
         url = "http://jpdclmdm.radius-ami.com:8850/gtDta"
         headers = {
             "Content-Type": "application/json",
-            "token": "yomUE5MXM52pDri0zd44QLonEJFpkgGdsFJrakW1CZ966zYwEIKv8qEp57+1q+QJ9lcbiMlvF6IPVO2kA31Wi9keJAAGP0E3mlTyxmXlto+GQNNcobIPJCk0umanOKfRo3rVXcDf2Z0/iNaYtv1chqh2ou0VFjnvw+//opyhMfz80CoZv2z6OJBBH5eJbXHKA/GdTBmEd2ELB7Nkv3oMkeAq4C8KaTRuriYBWgcKaI4gDGapkvg+IxwBeTkigc7/D34a0VSUr3CklolWayTf0ae04l+/DMVuMVXOGnrIRVF3rpEGICA+8Z55wkd9fAJhCWf3GGsU2bf1hgzwttlS9SHRbSgLa67WQDXzgLGe9W2zaKACAVIN0bS+8KRqQT1wDhVVQUaFkUVZyH6kEQrfow==",
+            "token": "p5dCOj1YdboLiyRsaZEomq3KEIZaaHW9QRjkDqOr+YQeRIc+715suteMEFCeECG7IVFW8Eksf535BirWTs+qs1lumKxH/7Q3Hw9lysu3p2Y2XnJuCkbMcTllqverWE7aaq3n0SxMBnQQtJtJ9sL0GUEaVdYDpcngTH2hqihPVud5H+2ZMnjP+vPtOLmgAbXlkW8wmmtynwrSmq/VGTm+4KLXFto+lz727XG5j+z13CQJHga/AG4Jcg0/m6bfMxJnFXaGzacWYwcvK6FFc5s0StNIsZezAU7fNMN4BNhqSvUP8dKv3JjNamOOvrARYUpxPTwl30QsOlkWMuoD9pLHJF/bOvQ/pnASE0AlZ8noq6PFMlSEEVc68OqDAfJm9gFwxAGzrP+4ZRgCoEXTpg9IMg==",
             "api_gateway": "AMI",
             "APIAgent": "shubh"
         }
