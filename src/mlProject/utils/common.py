@@ -302,7 +302,7 @@ def get_data_from_api_query():
         url = "http://jpdclmdm.radius-ami.com:8850/gtDta"
         headers = {
             "Content-Type": "application/json",
-            "token": "p5dCOj1YdboLiyRsaZEomq3KEIZaaHW9QRjkDqOr+YQeRIc+715suteMEFCeECG7IVFW8Eksf535BirWTs+qs1lumKxH/7Q3Hw9lysu3p2Y2XnJuCkbMcTllqverWE7aaq3n0SxMBnQQtJtJ9sL0GUEaVdYDpcngTH2hqihPVud5H+2ZMnjP+vPtOLmgAbXlkW8wmmtynwrSmq/VGTm+4KLXFto+lz727XG5j+z13CQJHga/AG4Jcg0/m6bfMxJnFXaGzacWYwcvK6FFc5s0StNIsZezAU7fNMN4BNhqSvUP8dKv3JjNamOOvrARYUpxPTwl30QsOlkWMuoD9pLHJF/bOvQ/pnASE0AlZ8noq6PFMlSEEVc68OqDAfJm9gFwxAGzrP+4ZRgCoEXTpg9IMg==",
+            "token": "3r+oBfrZkdVDOzFLmIYfl2PZyNJ74am9A4pGupWY+Sf8wIGArIz+awUEdWSLBPidh1B2nKaaAPn7m64WhjKfdhu1XLGo4gCcniOpmaSSDwRPzcXTJVwA1Am6QAIud0Yp13fujXWcariJ5nJeKNGtO/nmRS4dFYu0f4ZHEON/xv5XDBiKWmAeAmb5v7p4jB1+PHxpfSUfOX8rKIfGV/APO0bCc4KVIzgJbgtKw3nNcHh3YIce7oY3e/BjkCUGCdNOUI7kFjcZqT0OT5PEkUTNC5lJrmWB03uNHWrGe/LDq9+5hPUrc9x44jEOoKiwMHbd6yfTW+1qZXmdScXOZIQdcVQK23u2zeRGrGntmrdXXoCzJvbbJnFi0OtAjcfOemDVJL8I3mzZLGTJXL5UbcT8WQ==",
             "api_gateway": "AMI",
             "APIAgent": "shubh"
         }
@@ -318,6 +318,7 @@ def get_data_from_api_query():
             response = requests.post(url, json=params, headers=headers)
             response.raise_for_status()
             data = response.json()
+            print(data)
             l1.append(data['DATA'])
 
         columns = ['sensor', 'Clock', 'R_Current', 'Y_Current', 'B_Current', 'R_Voltage', 'Y_Voltage', 'B_Voltage',
