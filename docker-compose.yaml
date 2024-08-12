@@ -5,10 +5,10 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    command: python3 main.py
+#    command: python3 main.py
 
   training-script:
     build:
       context: .
       dockerfile: Dockerfile.training
-    command: python3 training.py
+#    command: python3 training.py
