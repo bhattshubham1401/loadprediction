@@ -319,8 +319,7 @@ def get_data_from_api_query():
                 response = requests.post(url, json=params, headers=headers)
                 response.raise_for_status()
                 data = response.json()
-                print(data)
-                # l1.append(data['DATA'])
+                l1.append(data['DATA'])
             except requests.exceptions.HTTPError as http_err:
                 print(f'HTTP error occurred: {http_err}')
                 print(f'Response content: {response.content}')
