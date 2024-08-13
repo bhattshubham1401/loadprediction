@@ -14,4 +14,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.training
+    volumes:
+      - ./artifacts:/app/artifacts/model_trainer
 #    command: python3 training.py
