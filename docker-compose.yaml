@@ -5,7 +5,8 @@ services:
       context: .
       dockerfile: Dockerfile
     volumes:
-      - ./artifacts: /app/atrifacts
+      - ./artifacts:/app/artifacts
+      - ./encoded_to_sensor_mapping.json:/app/encoded_to_sensor_mapping.json
 
 #    command: python3 main.py
 
